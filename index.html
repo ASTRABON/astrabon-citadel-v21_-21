@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Звёздная Крепость ASTRABON v21 - Автоматическая Касса</title>
+    <style>
+        body { 
+            font-family: 'Courier New', sans-serif; 
+            background: radial-gradient(circle at center, #1b1464 0%, #0c0822 70%, #050211 100%); 
+            background-image: 
+                radial-gradient(circle at center, #1b1464 0%, #0c0822 70%, #050211 100%),
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+            background-size: 100% 100%, 550px 550px, 350px 350px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            color: #d1d2f9; text-align: center; padding: 20px; min-height: 90vh;
+            margin: 0; display: flex; justify-content: center; align-items: center;
+        }
+        .platform-grid { display: grid; grid-template-columns: 160px 1fr 220px; gap: 20px; width: 100%; max-width: 1150px; align-items: start; }
+        .side-column { background: rgba(15, 12, 43, 0.85); border: 1px solid #5046e5; border-radius: 12px; padding: 15px; text-align: left; box-shadow: 0 0 15px rgba(80, 70, 229, 0.2); }
+        .nebula-mask { width: 70px; height: 70px; margin: 10px auto; background: radial-gradient(circle, #8a2be2 0%, transparent 70%); border-radius: 50%; box-shadow: 0 0 20px #8a2be2; cursor: pointer; transition: 0.4s; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .center-column { display: flex; flex-direction: column; gap: 20px; }
+        .neon-block { background: rgba(5, 2, 17, 0.9); border: 2px solid #5046e5; border-radius: 15px; padding: 25px; text-align: left; position: relative; box-shadow: 0 0 20px rgba(80, 70, 229, 0.3); }
+        .neon-block::before { content: attr(data-label); position: absolute; top: -12px; left: 20px; background: #050211; padding: 2px 12px; font-size: 13px; font-weight: bold; color: #45f3ff; border-radius: 20px; border: 1px solid #5046e5; }
+        .chat-area { height: 80px; background: #050211; border: 1px solid #5046e5; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 13px; margin-bottom: 10px; }
+        .menu-list { list-style: none; padding: 0; margin: 0; }
+        .menu-list li { padding: 8px 10px; border-bottom: 1px dashed rgba(80, 70, 229, 0.2); font-size: 12px; color: #b0a8ff; cursor: pointer; }
+        .btn { background: #5046e5; color: white; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 11px; }
+        .config-input { width: 93%; background:#050211; border:1px solid #5046e5; color:#45f3ff; padding:6px; font-family:monospace; outline:none; border-radius:4px; margin-top:5px; margin-bottom:10px; font-size: 11px; }
+        .admin-panel { background: rgba(138, 43, 226, 0.15); border: 1px solid #8a2be2; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        .status-dot { display: inline-block; width: 8px; height: 8px; background-color: #4caf50; border-radius: 50%; margin-right: 5px; box-shadow: 0 0 8px #4caf50; }
+    </style>
+</head>
+<body>
+
+    <div class="platform-grid">
+        
+        <!-- ЛЕВАЯ ЧАСТЬ (Управление Шлюзом) -->
+        <div class="side-column" style="text-align:center; font-size: 12px;">
+            <div style="font-size:10px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Админка (Нужен код)</div>
+            <div class="nebula-mask" onclick="openAdminWithCode()">🌌</div>
+            <div style="margin-top:15px; border-top:1px solid #333; padding-top:10px;">
+                Статус:<br><b style="color:#8a2be2;">СОЗДАТЕЛЬ</b><br>
+                Тариф: <b style="color:#4caf50;">2 AU ($40)</b>
+            </div>
+        </div>
+
+        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ -->
+        <div class="center-column">
+            
+            <div class="neon-block" data-label="ЗВЕЗДНАЯ КРЕПОСТЬ ASTRABON">
+                <div style="float: right; font-size: 11px; color: #4caf50;"><span class="status-dot"></span>● ИИ-Аудитор: Сеть активна</div>
+                <h2 style="color:#fff; font-size:17px; margin:0 0 15px 0; text-transform:uppercase; letter-spacing:2px;">🤖 Шлюз ИИ-Аудитора (Заработок)</h2>
+
+                <!-- 🔐 СЕКРЕТНАЯ ПАНЕЛЬ С ПАРОЛЕМ -->
+                <div id="admin-panel" class="admin-panel">
+                    <h3 style="color:#8a2be2; font-size:13px; margin:0 0 10px 0; text-transform:uppercase;">⚙️ Панель Управления Реквизитами</h3>
+                    
+                    <label style="font-size:11px; color:#aaa;">Основной кошелек Bitcoin (Proton):</label>
+                    <input type="text" id="owner-btc-address" class="config-input" value="bc1q48sp0t9yry8ekgrpugaq2xy0j8rmzz7s3lgh9w">
+                    
+                    <label style="font-size:11px; color:#aaa;">Резервный кошелек Bitcoin:</label>
+                    <input type="text" id="owner-btc-reserve" class="config-input" value="bc1q87l8jm3848jl04jwfgug0v5nvqdvmssr7gdsrq">
+                    
+                    <label style="font-size:11px; color:#aaa;">Счета Volt / Карта (EUR, USD, USDT):</label>
+                    <input type="text" id="owner-card-address" class="config-input" value="EUR681411190298 | USD883029682329 | USDT469966981897">
+                    <button class="btn" onclick="toggleAdminPanel(false)">Закрыть панель</button>
+                </div>
+
+                <!-- ФОРМА ЗАГРУЗКИ ДЛЯ КЛИЕНТОВ -->
+                <div style="border: 2px dashed #5046e5; padding: 15px; border-radius: 8px; text-align: center; background:#050211;">
+                    <p style="font-size:12px; margin:0 0 10px 0; color:#aaa;">Загрузите файл кода на автоматическую проверку ИИ:</p>
+                    <input type="file" id="audit-file" style="display:none;" onchange="fileLoaded()">
+                    <button class="btn" style="background:#4caf50;" onclick="document.getElementById('audit-file').click()">📥 Клиент: Загрузить файл кода (.html, .js, .py)</button>
+                    <div id="file-status" style="font-size:11px; color:#888; margin-top:5px;">[Файл не выбран]</div>
+                </div>
+
+                <!-- 📟 ТЕРМИНАЛ КАССЫ ЦИТАДЕЛИ ВАЛЮТ -->
+                <div id="cash-box" style="display:none; margin-top:15px; background:rgba(0,0,0,0.4); padding:12px; border-radius:8px; border-left:3px solid #ffaa00; font-size:12px;">
+                    <h4 style="color:#ffaa00; margin:0 0 5px 0;">📟 Терминал «Цитадель Валют»</h4>
+                    <p style="margin-bottom:10px;">Стоимость услуги: <b style="color:#45f3ff;">2 AU ($40)</b>. <span id="payment-timer" style="color:#ff3333; margin-left:15px; font-weight:bold;"></span></p>
+                    
+                    <div style="display:flex; gap:8px; flex-direction:column;">
+                        <button class="btn" style="background:#ffaa00; color:#0c0822;" onclick="showBtcInstruction()">🪙 Получить реквизиты: Оплата Биткоином (BTC)</button>
+                        <button class="btn" style="background:#4caf50;" onclick="showVoltInstruction()">💳 Получить реквизиты: Оплата через VOLT / Карта</button>
+                    </div>
+
+                    <div id="guest-instruction-display" style="display:none; margin-top:10px; background:#050211; padding:10px; border-radius:5px; border:1px dashed #ffaa00; font-size:11px; word-break:break-all;"></div>
+                </div>
+            </div>
+
+            <!-- НИЖНИЙ ЭКРАН ИИ-СЕКРЕТАРЯ -->
+            <div class="neon-block" data-label="ИИ-СЕКРЕТАРЬ И МОНИТОРИНГ">
+                <div class="chat-area" id="chat-box">
+                    <div id="secretary-text" style="color:#b0a8ff;">[ИИ-Секретарь]: Программа Безопасности активна. Панель Владельца защищена секретным кодом. Ожидание действий пользователя...</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ПРАВАЯ ЧАСТЬ -->
+        <div class="side-column">
+            <div style="font-size:12px; font-weight:bold; color:#45f3ff; margin-bottom:10px; border-bottom:1px solid #45f3ff; padding-bottom:5px;">🧭 ПУТЕВОДИТЕЛЬ</div>
+            <ul class="menu-list">
+                <li style="color: #45f3ff; font-weight: bold; border-left: 2px solid #45f3ff; padding-left: 8px;">🤖 ИИ-Аудитор Кода</li>
+                <li>🧪 Лаборатория Парфюма</li>
+                <li>🎙️ Звуковые Частоты (Гц)</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        let isFileReady = false;
+        const SECRET_CODE = "8888"; // ВАШ СЕКРЕТНЫЙ КОД ДЛЯ ВХОДА В АДМИНКУ
+        
+        function openAdminWithCode() {
+            let pass = prompt("Введите секретный код для доступа к управлению:");
+            if (pass === SECRET_CODE) {
+                toggleAdminPanel(true);
+            } else {
+                alert("Доступ запрещен. Неверный код безопасности.");
+            }
+        }
+
+        function toggleAdminPanel(show) {
+            const panel = document.getElementById('admin-panel');
+            if (show) {
+                panel.style.display = "block";
+                document.getElementById('secretary-text').innerText = "[ИИ-Секретарь]: Авторизация успешна. Панель управления реквизитами открыта Создателем.";
+            } else {
+                panel.style.display = "none";
+                document.getElementById('secretary-text').innerText = "[ИИ-Секретарь]: Безопасный режим активен. Реквизиты скрыты.";
+            }
+        }
+        
+        function fileLoaded() {
+            document.getElementById('file-status').innerText = "Файл принят в буфер. Ожидание транзакции...";
+            document.getElementById('file-status').style.color = "#45f3ff";
+            document.getElementById('cash-box').style.display = "block"; 
